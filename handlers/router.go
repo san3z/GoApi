@@ -11,7 +11,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func NewRouter() {
+func Start() {
 	r := mux.NewRouter()
 
 	// маршрут к статическим файлам
