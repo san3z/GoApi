@@ -3,8 +3,11 @@ package webserver
 import (
 	"encoding/json"
 	"fmt"
+	"html/template"
 	"log"
 	"net/http"
+
+	config "GoodApi/database/config"
 
 	users "GoodApi/database"
 
@@ -26,7 +29,7 @@ func Start() {
 
 	r.HandleFunc("/", HomePage)
 	r.HandleFunc("/DataBase", DataBase).Methods("GET")
-
+	r.HandleFunc("/SqlUsers", UsersPage).Methods("GET")
 	ip, ipErr := getLocalIP()
 	if ipErr != nil {
 		log.Fatal(ipErr)
@@ -59,6 +62,7 @@ func HomePage(w http.ResponseWriter, r *http.Request) {
 	links := []struct{ URL, DisplayText string }{
 		{fmt.Sprintf("http://%s/images/1.jpg", serverAddress), "Image 1"},
 		{fmt.Sprintf("http://%s/DataBase", serverAddress), "UsrDB"},
+		{fmt.Sprintf("http://%s/SqlUsers", serverAddress), "SqlDB"},
 	}
 
 	// Генерация HTML-строки с гиперссылками
@@ -75,4 +79,23 @@ func DataBase(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(userDataJSON)
+}
+
+func UsersPage(w http.ResponseWriter, r *http.Request) {
+	users, err := config.FetchUsers()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	tmpl, err := template.ParseFiles("database/SqlUsersTemplate.html")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	err = tmpl.Execute(w, users)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 }

@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Пользователи</title>
+</head>
+<body style="background-color:#00b3b9;">
+    <h1>Список пользователей</h1>
+    <ul>
+        {{range .}}
+        <li>{{.Name}} - {{.Age}} лет - {{.Job}}</li>
+        {{end}}
+    </ul>
+</body>
+</html>
